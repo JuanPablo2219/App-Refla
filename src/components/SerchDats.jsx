@@ -6,11 +6,21 @@ import '../styles/SearchDats.css';
 import axios from 'axios';
 
 const SearchComponent = () => {
+  const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
 
-   const search = async () => {
+  const isNumeric = (value) => !isNaN(parseFloat(value)) && isFinite(value);
+
+  const search = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/notas");
+      let url;
+      if (isNumeric(query)) {
+        url = `http://192.168.1.157:8080/personRuc/${query}`;
+      } else {
+        url = `http://192.168.1.157:8080/personRuc/name/${encodeURIComponent(query)}`;
+      }
+
+      const response = await axios.get(url);
 
       const data = response.data;
       console.log('Datos recibidos:', data);
@@ -19,7 +29,6 @@ const SearchComponent = () => {
       console.error('Error al buscar:', error.message);
     }
   };
-  
 
   return (
     <div className="container">
@@ -27,10 +36,12 @@ const SearchComponent = () => {
         <h2 className="p-text-center">Consulta de Datos</h2>
         <div className="p-fluid">
           <div className="p-field">
-            <label htmlFor="query">Ingrese cédula o nombre</label>
+            <label htmlFor="query">Ingrese RUC o nombre</label>
             <InputText
               id="query"
-              placeholder="Ej. 1234567890"
+              placeholder="Ej. 1234567890 o Nombre"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
           </div>
         </div>
@@ -41,7 +52,9 @@ const SearchComponent = () => {
         {result && (
           <div className="result-container">
             <h3 className="p-text-center">Resultado:</h3>
-            <p className="p-text-center">{result.nombreCompleto || result.numeroCedula}</p>
+            <p className="p-text-center">
+              {isNumeric(query) ? result[0].nombres : result[0].identificacion}
+            </p>
           </div>
         )}
       </Card>
