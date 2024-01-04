@@ -15,6 +15,7 @@ const SearchComponent = () => {
   const isNumeric = (value) => !isNaN(parseFloat(value)) && isFinite(value);
 
   const handleInputChange = (e) => {
+    // Filtrar caracteres especiales usando una expresión regular
     const inputValue = e.target.value.replace(/[^\w\s]/gi, ''); // Esto permitirá solo letras, números y espacios
 
     setQuery(inputValue);
@@ -26,11 +27,13 @@ const SearchComponent = () => {
       let url;
 
       const cleanedQuery = query.trim().toUpperCase();
-
-      if (isNumeric(cleanedQuery)) {
-        url = `http://localhost:8080/personRuc/${query}`;
-      } else {
+      //Si contiene espacios , osea es nombre completo (2 apellidos, 2 nombres)
+       if (cleanedQuery.includes(' ')) {
+        const [Apellido,Nombre] = cleanedQuery.split(' ');
         url = `http://localhost:8080/personRuc/name/${encodeURIComponent(cleanedQuery)}`;
+        //Si es numerico
+      } else if (isNumeric(cleanedQuery)) {
+        url = `http://localhost:8080/personRuc/${query}`;
       }
 
       const response = await axios.get(url);
@@ -81,8 +84,20 @@ const SearchComponent = () => {
           <div className="result-container">
             <h3 className="p-text-center">Resultado:</h3>
             <p className="p-text-center">
-              {isNumeric(query) ? result.data[0].nombres : result.data[0].identificacion}
-            </p>
+          {isNumeric(query) ? (
+            <span>
+              <strong>Nombre:</strong> {result.data[0].nombres}
+              <br />
+              <strong>Número de cédula:</strong> {result.data[0].identificacion}
+            </span>
+          ) : (
+            <span>
+              <strong>Nombre:</strong> {result.data[0].nombres}
+              <br />
+              <strong>Número de cédula:</strong> {result.data[0].identificacion}
+            </span>
+          )}
+        </p>
           </div>
         ) : (
           <div className="result-container">
