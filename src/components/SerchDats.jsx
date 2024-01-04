@@ -12,14 +12,16 @@ const SearchComponent = () => {
   const [searchError, setSearchError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
-
-
   const isNumeric = (value) => !isNaN(parseFloat(value)) && isFinite(value);
+
+  const handleInputChange = (e) => {
+    const inputValue = e.target.value.replace(/[^\w\s]/gi, ''); // Esto permitirá solo letras, números y espacios
+
+    setQuery(inputValue);
+  };
 
   const search = async () => {
     try {
-
       setLoading(true);
       let url;
 
@@ -45,8 +47,7 @@ const SearchComponent = () => {
       setResult(data);
     } catch (error) {
       console.error('Error al buscar:', error.message);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -62,7 +63,7 @@ const SearchComponent = () => {
               id="query"
               placeholder="Ej. 1234567890 o Nombre"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleInputChange} // Usar la función de filtrado
             />
           </div>
         </div>
@@ -70,16 +71,12 @@ const SearchComponent = () => {
         <div className="p-d-flex p-jc-center p-mt-4">
           <Button label="Buscar" icon="pi pi-search" onClick={search} />
         </div>
-        <div style={{display:'grid', placeContent:'center'}}> 
-
-        {loading && <ProgressSpinner />} {/* Indicador de carga */}
-        {searchError && (
-          <div className="p-message p-message-error p-mt-2 p-mb-0">
-          </div>
-        )}
-
+        <div style={{ display: 'grid', placeContent: 'center' }}>
+          {loading && <ProgressSpinner />} {/* Indicador de carga */}
+          {searchError && (
+            <div className="p-message p-message-error p-mt-2 p-mb-0"></div>
+          )}
         </div>
-
         {result && result.data && result.data.length > 0 ? (
           <div className="result-container">
             <h3 className="p-text-center">Resultado:</h3>
