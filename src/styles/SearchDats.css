@@ -8,7 +8,7 @@
   .card {
     margin: 4px;
     width: 80%;
-    height: 60%;
+    height: 80%;
     border: 1px gray solid;
   }
   
@@ -22,3 +22,4 @@
     justify-content: center;
   }
   
+

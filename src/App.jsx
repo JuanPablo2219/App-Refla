@@ -3,7 +3,7 @@ import { useFetch } from './useFetch';
 
 function App() {
 
-  const { data, loading, error, handleChangeRequest } = useFetch("http://jsonplaceholder.typicode.com/users")
+  const { data, loading, error, handleChangeRequest } = useFetch("http://localhost:8080/personRuc")
 
   return (
     <div className="App">

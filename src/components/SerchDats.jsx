@@ -4,29 +4,50 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import '../styles/SearchDats.css';
 import axios from 'axios';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const SearchComponent = () => {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
+  const [searchError, setSearchError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+
+
 
   const isNumeric = (value) => !isNaN(parseFloat(value)) && isFinite(value);
 
   const search = async () => {
     try {
+
+      setLoading(true);
       let url;
-      if (isNumeric(query)) {
-        url = `http://192.168.1.157:8080/personRuc/${query}`;
+
+      const cleanedQuery = query.trim().toUpperCase();
+
+      if (isNumeric(cleanedQuery)) {
+        url = `http://localhost:8080/personRuc/${query}`;
       } else {
-        url = `http://192.168.1.157:8080/personRuc/name/${encodeURIComponent(query)}`;
+        url = `http://localhost:8080/personRuc/name/${encodeURIComponent(cleanedQuery)}`;
       }
 
       const response = await axios.get(url);
 
       const data = response.data;
       console.log('Datos recibidos:', data);
+
+      if (data && data.length > 0) {
+        setResult(data);
+        setSearchError(null); // Reiniciar mensaje de error
+      } else {
+        setResult(null);
+      }
       setResult(data);
     } catch (error) {
       console.error('Error al buscar:', error.message);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -49,12 +70,26 @@ const SearchComponent = () => {
         <div className="p-d-flex p-jc-center p-mt-4">
           <Button label="Buscar" icon="pi pi-search" onClick={search} />
         </div>
-        {result && (
+        <div style={{display:'grid', placeContent:'center'}}> 
+
+        {loading && <ProgressSpinner />} {/* Indicador de carga */}
+        {searchError && (
+          <div className="p-message p-message-error p-mt-2 p-mb-0">
+          </div>
+        )}
+
+        </div>
+
+        {result && result.data && result.data.length > 0 ? (
           <div className="result-container">
             <h3 className="p-text-center">Resultado:</h3>
             <p className="p-text-center">
-              {isNumeric(query) ? result[0].nombres : result[0].identificacion}
+              {isNumeric(query) ? result.data[0].nombres : result.data[0].identificacion}
             </p>
+          </div>
+        ) : (
+          <div className="result-container">
+            <p className="p-text-center">Registro no encontrado</p>
           </div>
         )}
       </Card>
